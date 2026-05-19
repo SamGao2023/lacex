@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>LaceX | Magnetic Shoelaces</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
+      background: #050505;
+      color: white;
+      line-height: 1.6;
+      overflow-x: hidden;
+      scrollbar-width: none;
+      -ms-overflow-style: none;
+    }
+    body::-webkit-scrollbar { display: none; }
+    a { color: inherit; text-decoration: none; }
+    button, input, select { font-family: inherit; }
+
+    header {
+      position: sticky; top: 0; z-index: 100;
+      background: rgba(5,5,5,.75); backdrop-filter: blur(20px);
+      border-bottom: 1px solid rgba(255,255,255,.1);
+    }
+    nav { max-width: 1200px; margin: auto; padding: 16px 24px; display: flex; align-items: center; justify-content: space-between; }
+    .logo { display: flex; align-items: center; gap: 10px; font-size: 22px; font-weight: 750; }
+    .logo-icon { width: 34px; height: 34px; border-radius: 50%; background: white; color: black; display: grid; place-items: center; font-weight: 800; }
+    .nav-links { display: flex; gap: 28px; color: rgba(255,255,255,.65); font-size: 14px; }
+    .nav-links a:hover { color: white; }
+
+    .button {
+      display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+      border-radius: 999px; padding: 13px 24px; background: white; color: black;
+      font-weight: 650; border: none; cursor: pointer; transition: .22s ease;
+    }
+    .button:hover { transform: translateY(-2px); background: #eaeaea; }
+    .button-dark { background: rgba(255,255,255,.08); color: white; border: 1px solid rgba(255,255,255,.16); }
+    .button-dark:hover { background: rgba(255,255,255,.14); }
+    .cart-button { position: relative; }
+    .cart-count { position: absolute; top: -7px; right: -7px; width: 21px; height: 21px; border-radius: 50%; background: #3b82f6; color: white; font-size: 12px; display: grid; place-items: center; }
+
+    .page { display: none; }
+    .page.active { display: block; animation: fadeUp .55s ease both; }
+
+    .hero { position: relative; overflow: hidden; text-align: center; padding: 110px 24px 70px; background: radial-gradient(circle at top, rgba(79,91,112,.8), transparent 42%); }
+    .glow { position: absolute; left: 50%; top: 100px; transform: translateX(-50%); width: 360px; height: 360px; border-radius: 50%; background: rgba(60,130,255,.18); filter: blur(80px); z-index: -1; animation: glowMove 7s ease-in-out infinite alternate; }
+    @keyframes glowMove { from { transform: translateX(-55%) translateY(0) scale(1); opacity: .65; } to { transform: translateX(-45%) translateY(35px) scale(1.18); opacity: 1; } }
+    @keyframes fadeUp { from { opacity: 0; transform: translateY(28px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes floatCard { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-14px); } }
+    @keyframes shine { 0%,45% { transform: translateX(-70%); } 75%,100% { transform: translateX(70%); } }
+
+    .pill { display: inline-block; margin-bottom: 24px; padding: 10px 18px; border-radius: 999px; background: rgba(255,255,255,.1); border: 1px solid rgba(255,255,255,.14); color: rgba(255,255,255,.78); font-size: 14px; animation: fadeUp .8s ease both; }
+    .hero h1 { max-width: 1000px; margin: auto; font-size: clamp(52px, 8vw, 104px); line-height: .95; letter-spacing: -.06em; font-weight: 780; animation: fadeUp .9s ease .1s both; }
+    .hero p { max-width: 700px; margin: 28px auto 0; color: rgba(255,255,255,.65); font-size: 21px; animation: fadeUp .9s ease .2s both; }
+    .hero-buttons { margin-top: 40px; display: flex; justify-content: center; gap: 16px; flex-wrap: wrap; animation: fadeUp .9s ease .3s both; }
+
+    .product-card { max-width: 1000px; margin: 80px auto 0; padding: 24px; border-radius: 40px; border: 1px solid rgba(255,255,255,.12); background: linear-gradient(135deg, rgba(255,255,255,.18), rgba(255,255,255,.04)); box-shadow: 0 30px 80px rgba(0,0,0,.45); animation: fadeUp 1s ease .45s both, floatCard 5s ease-in-out 1.4s infinite; }
+    .product-placeholder { position: relative; overflow: hidden; min-height: 430px; border-radius: 30px; background: #101010; display: grid; place-items: center; color: rgba(255,255,255,.45); }
+    .product-placeholder::before { content: ""; position: absolute; inset: -80px; background: linear-gradient(120deg, transparent 30%, rgba(255,255,255,.12), transparent 70%); transform: translateX(-70%); animation: shine 4s ease-in-out infinite; }
+    .circle-placeholder { width: 120px; height: 120px; background: rgba(255,255,255,.08); border-radius: 50%; margin: 0 auto 24px; animation: pulse 2.8s ease-in-out infinite; }
+    @keyframes pulse { 0%,100% { transform: scale(1); box-shadow: 0 0 0 rgba(255,255,255,0); } 50% { transform: scale(1.08); box-shadow: 0 0 60px rgba(255,255,255,.16); } }
+
+    section { padding: 85px 24px; }
+    .container { max-width: 1200px; margin: auto; }
+    .section-title { text-align: center; margin-bottom: 48px; }
+    .section-title h2 { font-size: clamp(38px, 5vw, 60px); line-height: 1; letter-spacing: -.04em; margin-bottom: 18px; }
+    .section-title p { color: rgba(255,255,255,.58); max-width: 650px; margin: auto; font-size: 18px; }
+    .reveal { opacity: 0; transform: translateY(45px); transition: opacity .8s ease, transform .8s ease; }
+    .reveal.show { opacity: 1; transform: translateY(0); }
+
+    .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 22px; }
+    .grid-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 22px; }
+    .card { border-radius: 30px; background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.1); padding: 34px; box-shadow: 0 20px 50px rgba(0,0,0,.25); transition: transform .25s ease, background .25s ease, border-color .25s ease; }
+    .card:hover { transform: translateY(-8px) scale(1.01); background: rgba(255,255,255,.09); border-color: rgba(255,255,255,.2); }
+    .card h3 { font-size: 25px; margin-bottom: 12px; }
+    .card p, .muted { color: rgba(255,255,255,.58); }
+    .icon { font-size: 34px; margin-bottom: 16px; }
+    .white-card { background: white; color: black; }
+    .white-card p, .white-card li { color: rgba(0,0,0,.62); }
+    .white-card:hover { background: #f3f3f3; }
+    ul { list-style: none; margin-top: 24px; display: grid; gap: 12px; }
+    li::before { content: "✓ "; font-weight: 800; }
+
+    .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; background: rgba(255,255,255,.04); border: 1px solid rgba(255,255,255,.1); border-radius: 28px; padding: 18px; text-align: center; }
+    .stat { padding: 24px; }
+    .stat strong { display: block; font-size: 32px; }
+    .stat span { color: rgba(255,255,255,.5); }
+
+    .split-box { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; align-items: center; border-radius: 42px; background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.1); padding: 56px; }
+    .eyebrow { color: rgba(255,255,255,.45); text-transform: uppercase; letter-spacing: .24em; font-size: 13px; font-weight: 700; margin-bottom: 14px; }
+    .split-box h2 { font-size: clamp(36px, 5vw, 56px); line-height: 1; letter-spacing: -.04em; margin-bottom: 22px; }
+    .steps { display: grid; gap: 14px; }
+    .step { display: flex; gap: 18px; background: rgba(0,0,0,.25); border-radius: 24px; padding: 22px; transition: .25s ease; }
+    .step:hover { transform: translateX(8px); background: rgba(255,255,255,.08); }
+    .step-number { width: 42px; height: 42px; border-radius: 50%; background: white; color: black; display: grid; place-items: center; font-weight: 800; flex-shrink: 0; }
+
+    .shop-card { padding: 18px; }
+    .shop-img { height: 240px; border-radius: 24px; background: radial-gradient(circle at top, #374151, #0f0f0f 70%); display: grid; place-items: center; margin-bottom: 20px; color: rgba(255,255,255,.55); overflow: hidden; position: relative; }
+    .shop-img::after { content: ""; width: 120px; height: 120px; border-radius: 50%; background: rgba(255,255,255,.08); box-shadow: 0 0 60px rgba(255,255,255,.12); }
+    .price { font-size: 42px; font-weight: 780; margin: 10px 0; letter-spacing: -.04em; }
+    .color-dots { display: flex; gap: 8px; margin: 16px 0; }
+    .dot { width: 18px; height: 18px; border-radius: 50%; border: 2px solid rgba(255,255,255,.3); }
+    .black { background: #111; } .white { background: #eee; } .blue { background: #2563eb; } .red { background: #ef4444; }
+
+    .faq { max-width: 850px; margin: auto; }
+    .faq-item { background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.1); border-radius: 24px; padding: 25px; margin-bottom: 14px; }
+    .cta-box { text-align: center; border-radius: 42px; background: linear-gradient(135deg, white, #d8d8d8); color: black; padding: 70px 30px; box-shadow: 0 30px 80px rgba(0,0,0,.45); }
+    .cta-box h2 { font-size: clamp(42px, 6vw, 70px); line-height: 1; letter-spacing: -.05em; margin-bottom: 20px; }
+    .cta-box p { color: rgba(0,0,0,.6); max-width: 650px; margin: 0 auto 32px; font-size: 19px; }
+
+    .drawer-bg { position: fixed; inset: 0; background: rgba(0,0,0,.55); z-index: 200; display: none; }
+    .drawer-bg.open { display: block; }
+    .cart-drawer { position: fixed; top: 0; right: 0; width: min(430px, 100%); height: 100vh; background: #111; border-left: 1px solid rgba(255,255,255,.12); z-index: 300; transform: translateX(105%); transition: .35s ease; padding: 24px; display: flex; flex-direction: column; }
+    .cart-drawer.open { transform: translateX(0); }
+    .drawer-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
+    .close { background: rgba(255,255,255,.08); color: white; border: 1px solid rgba(255,255,255,.14); width: 40px; height: 40px; border-radius: 50%; cursor: pointer; }
+    .cart-items { flex: 1; overflow-y: auto; display: grid; gap: 14px; padding-right: 3px; scrollbar-width: none; }
+    .cart-items::-webkit-scrollbar { display: none; }
+    .cart-item { display: grid; grid-template-columns: 70px 1fr; gap: 14px; background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.1); padding: 12px; border-radius: 20px; }
+    .mini-img { border-radius: 16px; background: radial-gradient(circle at top, #4b5563, #181818); }
+    .qty { display: inline-flex; align-items: center; gap: 10px; margin-top: 8px; }
+    .qty button { width: 28px; height: 28px; border-radius: 50%; border: none; cursor: pointer; }
+    .cart-footer { border-top: 1px solid rgba(255,255,255,.1); padding-top: 18px; margin-top: 18px; }
+    .row { display: flex; justify-content: space-between; margin-bottom: 10px; }
+
+    .checkout-box { max-width: 900px; margin: auto; display: grid; grid-template-columns: 1.3fr .7fr; gap: 22px; }
+    .form-card { background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.1); border-radius: 30px; padding: 30px; }
+    label { display: block; margin: 16px 0 7px; color: rgba(255,255,255,.7); }
+    input, select { width: 100%; padding: 14px 16px; border-radius: 14px; border: 1px solid rgba(255,255,255,.14); background: rgba(255,255,255,.08); color: white; outline: none; }
+    input:focus, select:focus { border-color: rgba(255,255,255,.45); }
+    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    .success { display: none; margin-top: 18px; padding: 14px; border-radius: 16px; background: rgba(34,197,94,.15); color: #86efac; }
+
+    footer { border-top: 1px solid rgba(255,255,255,.1); padding: 50px 24px; }
+    .footer-grid { max-width: 1200px; margin: auto; display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 30px; }
+    footer p, footer a { color: rgba(255,255,255,.45); font-size: 14px; }
+    footer h4 { margin-bottom: 14px; }
+    .footer-links { display: grid; gap: 10px; }
+    .copyright { max-width: 1200px; margin: 35px auto 0; color: rgba(255,255,255,.35); font-size: 14px; }
+
+    @media (max-width: 900px) {
+      .nav-links { display: none; }
+      .grid-3, .grid-2, .split-box, .footer-grid, .checkout-box { grid-template-columns: 1fr; }
+      .stats-grid { grid-template-columns: repeat(2, 1fr); }
+      .split-box { padding: 34px; }
+    }
+    @media (max-width: 540px) {
+      .hero { padding-top: 90px; }
+      .hero h1 { font-size: 52px; }
+      .stats-grid, .form-grid { grid-template-columns: 1fr; }
+      .product-placeholder { min-height: 300px; }
+      nav { gap: 10px; }
+      .button { padding: 11px 16px; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <nav>
+      <a href="#" class="logo" onclick="showPage('home')"><span class="logo-icon">X</span><span>LaceX</span></a>
+      <div class="nav-links">
+        <a href="#" onclick="showPage('home')">Home</a>
+        <a href="#" onclick="showPage('shop')">Shop</a>
+        <a href="#" onclick="showPage('product')">Product</a>
+        
+        <a href="#faq" onclick="showPage('home')">FAQ</a>
+      </div>
+      <button class="button cart-button" onclick="openCart()">Cart <span class="cart-count" id="cartCount">0</span></button>
+    </nav>
+  </header>
+
+  <main>
+    <div id="home" class="page active">
+      <section class="hero">
+        <div class="glow"></div>
+        <div class="pill">✦ No knots. No slipping. Just snap.</div>
+        <h1>Magnetic laces that feel like the future.</h1>
+        <p>LaceX replaces traditional shoelaces with a sleek magnetic locking system made for speed, comfort, and everyday style.</p>
+        <div class="hero-buttons">
+          <a href="#" onclick="showPage('shop')" class="button">Shop LaceX →</a>
+          <a href="#how" class="button button-dark">See how it works</a>
+        </div>
+        <div class="product-card"><div class="product-placeholder"><div><div class="circle-placeholder"></div><h2>Hero Product Image</h2><p>Place a clean shoe render with LaceX magnetic laces here</p></div></div></div>
+      </section>
+
+      <section class="stats reveal"><div class="container stats-grid"><div class="stat"><strong>3 sec</strong><span>snap-on close</span></div><div class="stat"><strong>Most</strong><span>sneakers supported</span></div><div class="stat"><strong>0</strong><span>knots needed</span></div><div class="stat"><strong>24/7</strong><span>everyday comfort</span></div></div></section>
+
+      <section id="features" class="reveal"><div class="container"><div class="section-title"><h2>Designed for everyday motion.</h2><p>Small details make LaceX simple, secure, and satisfying to use.</p></div><div class="grid-3"><div class="card"><div class="icon">⚡</div><h3>Snap in seconds</h3><p>No tying, no double knots, and no stopping to fix loose laces.</p></div><div class="card"><div class="icon">🛡️</div><h3>Secure magnetic lock</h3><p>The hidden locking system keeps your shoes tight during daily movement.</p></div><div class="card"><div class="icon">✨</div><h3>Clean modern style</h3><p>A smooth, futuristic look without bulky straps or messy knots.</p></div></div></div></section>
+
+      <section id="how" class="reveal"><div class="container split-box"><div><div class="eyebrow">How it works</div><h2>Set your fit once. Snap every time.</h2><p class="muted">Install the laces, adjust the tension, then use the magnetic clip to close them instantly.</p></div><div class="steps"><div class="step"><div class="step-number">1</div><div><h3>Thread</h3><p class="muted">Add LaceX like regular laces.</p></div></div><div class="step"><div class="step-number">2</div><div><h3>Adjust</h3><p class="muted">Choose the tightness that feels best.</p></div></div><div class="step"><div class="step-number">3</div><div><h3>Snap</h3><p class="muted">Connect the magnetic ends and go.</p></div></div></div></div></section>
+
+      <section id="faq" class="reveal"><div class="section-title"><h2>Questions?</h2></div><div class="faq"><div class="faq-item"><h3>Do LaceX magnetic shoelaces fit every shoe?</h3><p>They are designed for most lace-up sneakers and casual shoes.</p></div><div class="faq-item"><h3>Can I adjust the tightness?</h3><p>Yes. You set your preferred tension during installation.</p></div><div class="faq-item"><h3>What comes in the box?</h3><p>Each kit includes magnetic laces, clips, and a simple installation guide.</p></div></div></section>
+    </div>
+
+    <div id="shop" class="page">
+      <section><div class="container"><div class="section-title"><h2>Shop LaceX.</h2><p>Pick a kit and add it to your cart.</p></div><div class="grid-3">
+        <div class="card shop-card"><div class="shop-img"></div><h3>Starter Kit</h3><p>One pair of magnetic laces.</p><div class="color-dots"><span class="dot black"></span><span class="dot white"></span><span class="dot blue"></span></div><div class="price">$24.99</div><button class="button" onclick="addToCart('Starter Kit', 24.99)">Add to cart</button></div>
+        <div class="card shop-card white-card"><div class="shop-img"></div><h3>Duo Kit</h3><p>Two pairs of magnetic laces. Best value.</p><div class="color-dots"><span class="dot black"></span><span class="dot white"></span><span class="dot red"></span></div><div class="price">$39.99</div><button class="button" onclick="addToCart('Duo Kit', 39.99)">Add to cart</button></div>
+        <div class="card shop-card"><div class="shop-img"></div><h3>Family Kit</h3><p>Four pairs for multiple shoes.</p><div class="color-dots"><span class="dot black"></span><span class="dot white"></span><span class="dot blue"></span><span class="dot red"></span></div><div class="price">$69.99</div><button class="button" onclick="addToCart('Family Kit', 69.99)">Add to cart</button></div>
+      </div></div></section>
+    </div>
+
+    <div id="product" class="page">
+      <section><div class="container split-box"><div class="product-placeholder"><div><div class="circle-placeholder"></div><h2>LaceX Starter Kit</h2><p>Product image placeholder</p></div></div><div><div class="eyebrow">Product page</div><h2>LaceX Starter Kit</h2><p class="muted">A simple magnetic lace system for one pair of sneakers. Fast, clean, and adjustable.</p><div class="price">$24.99</div><ul><li>One pair of magnetic laces</li><li>Magnetic clips included</li><li>Adjustable fit guide</li><li>Works with most sneakers</li></ul><br><button class="button" onclick="addToCart('Starter Kit', 24.99)">Add to cart</button> <button class="button button-dark" onclick="showPage('shop')">View all kits</button></div></div></section>
+    </div>
+
+    <div id="checkout" class="page">
+      <section><div class="container"><div class="section-title"><h2>Checkout.</h2><p>This is a demo checkout form for your website template.</p></div><div class="checkout-box">
+        <form class="form-card" onsubmit="placeOrder(event)"><h3>Shipping details</h3><label>Full name</label><input required placeholder="Sam Gao"><label>Email</label><input type="email" required placeholder="name@email.com"><label>Address</label><input required placeholder="123 Main Street"><div class="form-grid"><div><label>City</label><input required placeholder="Toronto"></div><div><label>Province</label><select><option>Ontario</option><option>British Columbia</option><option>Alberta</option><option>Quebec</option></select></div></div><label>Card number</label><input required placeholder="1234 5678 9012 3456"><button class="button" style="margin-top:22px;width:100%;">Place order</button><div class="success" id="successMessage">Order placed! This is a demo, so no real payment was made.</div></form>
+        <div class="form-card"><h3>Order summary</h3><div id="checkoutItems" style="margin-top:18px;"></div><div style="border-top:1px solid rgba(255,255,255,.1);margin-top:18px;padding-top:18px;"><div class="row"><span>Subtotal</span><strong id="checkoutSubtotal">$0.00</strong></div><div class="row"><span>Shipping</span><strong>Free</strong></div><div class="row"><span>Total</span><strong id="checkoutTotal">$0.00</strong></div></div></div>
+      </div></div></section>
+    </div>
+  </main>
+
+  <div class="drawer-bg" id="drawerBg" onclick="closeCart()"></div>
+  <aside class="cart-drawer" id="cartDrawer">
+    <div class="drawer-head"><h2>Your cart</h2><button class="close" onclick="closeCart()">×</button></div>
+    <div class="cart-items" id="cartItems"></div>
+    <div class="cart-footer"><div class="row"><span>Subtotal</span><strong id="subtotal">$0.00</strong></div><button class="button" style="width:100%;" onclick="goCheckout()">Checkout</button><button class="button button-dark" style="width:100%;margin-top:10px;" onclick="showPage('shop'); closeCart();">Keep shopping</button></div>
+  </aside>
+
+  <footer>
+    <div class="footer-grid"><div><div class="logo"><span class="logo-icon">X</span><span>LaceX</span></div><p style="margin-top:16px;max-width:280px;">Magnetic shoelaces for modern movement.</p></div><div><h4>Product</h4><div class="footer-links"><a href="#" onclick="showPage('shop')">Shop</a><a href="#" onclick="showPage('product')">Product</a></div></div><div><h4>Company</h4><div class="footer-links"><a href="#">About</a><a href="#">Contact</a><a href="#">Careers</a></div></div><div><h4>Support</h4><div class="footer-links"><a href="#">FAQ</a><a href="#">Shipping</a><a href="#">Returns</a></div></div></div><p class="copyright">© 2026 LaceX. All rights reserved.</p>
+  </footer>
+
+  <script>
+    let cart = [];
+
+    function showPage(pageId) {
+      document.querySelectorAll('.page').forEach(page => page.classList.remove('active'));
+      document.getElementById(pageId).classList.add('active');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      updateCheckout();
+      revealOnScroll();
+    }
+
+    function openCart() {
+      document.getElementById('cartDrawer').classList.add('open');
+      document.getElementById('drawerBg').classList.add('open');
+    }
+
+    function closeCart() {
+      document.getElementById('cartDrawer').classList.remove('open');
+      document.getElementById('drawerBg').classList.remove('open');
+    }
+
+    function addToCart(name, price) {
+      const existing = cart.find(item => item.name === name);
+      if (existing) existing.qty++;
+      else cart.push({ name, price, qty: 1 });
+      updateCart();
+      openCart();
+    }
+
+    function changeQty(name, amount) {
+      const item = cart.find(item => item.name === name);
+      if (!item) return;
+      item.qty += amount;
+      if (item.qty <= 0) cart = cart.filter(product => product.name !== name);
+      updateCart();
+    }
+
+    function getSubtotal() {
+      return cart.reduce((total, item) => total + item.price * item.qty, 0);
+    }
+
+    function updateCart() {
+      const cartItems = document.getElementById('cartItems');
+      const count = cart.reduce((total, item) => total + item.qty, 0);
+      document.getElementById('cartCount').textContent = count;
+      document.getElementById('subtotal').textContent = '$' + getSubtotal().toFixed(2);
+
+      if (cart.length === 0) {
+        cartItems.innerHTML = '<p class="muted">Your cart is empty.</p>';
+      } else {
+        cartItems.innerHTML = cart.map(item => `
+          <div class="cart-item">
+            <div class="mini-img"></div>
+            <div>
+              <strong>${item.name}</strong>
+              <p class="muted">$${item.price.toFixed(2)}</p>
+              <div class="qty">
+                <button onclick="changeQty('${item.name}', -1)">−</button>
+                <span>${item.qty}</span>
+                <button onclick="changeQty('${item.name}', 1)">+</button>
+              </div>
+            </div>
+          </div>
+        `).join('');
+      }
+      updateCheckout();
+    }
+
+    function updateCheckout() {
+      const checkoutItems = document.getElementById('checkoutItems');
+      if (!checkoutItems) return;
+      if (cart.length === 0) {
+        checkoutItems.innerHTML = '<p class="muted">No items yet. Go to the shop page to add products.</p>';
+      } else {
+        checkoutItems.innerHTML = cart.map(item => `<div class="row"><span>${item.name} × ${item.qty}</span><strong>$${(item.price * item.qty).toFixed(2)}</strong></div>`).join('');
+      }
+      document.getElementById('checkoutSubtotal').textContent = '$' + getSubtotal().toFixed(2);
+      document.getElementById('checkoutTotal').textContent = '$' + getSubtotal().toFixed(2);
+    }
+
+    function goCheckout() {
+      closeCart();
+      showPage('checkout');
+    }
+
+    function placeOrder(event) {
+      event.preventDefault();
+      document.getElementById('successMessage').style.display = 'block';
+      cart = [];
+      updateCart();
+    }
+
+    const revealElements = document.querySelectorAll('.reveal');
+    function revealOnScroll() {
+      revealElements.forEach(element => {
+        if (element.getBoundingClientRect().top < window.innerHeight - 90) element.classList.add('show');
+      });
+    }
+    window.addEventListener('scroll', revealOnScroll);
+    window.addEventListener('load', () => { updateCart(); revealOnScroll(); });
+  </script>
+</body>
+</html>
